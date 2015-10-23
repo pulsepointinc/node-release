@@ -329,7 +329,7 @@ if(!module.parent){
         return;
     }
 
-    Release.performRelease({
+    Release.perform({
         projectPath: cliArgs.p || '.',
         releaseVersion: cliArgs.releaseVersion || undefined,
         devVersion: cliArgs.devVersion || undefined,
