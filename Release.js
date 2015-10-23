@@ -1,7 +1,8 @@
 var q = require('q'),
     spawn = require('child_process').spawn,
     semver = require('semver'),
-    fs = require('fs-extra');
+    fs = require('fs-extra'),
+    minimist = require('minimist');
 /**
  * A Release utility for node projects that
  * - use npm and thus have a project.json file
@@ -91,7 +92,7 @@ var Release = {
         Release.debug("#reset:enter (" + projectRoot + "," + commit + ")");
         return new q.Promise(function(resolve,reject){
             if(!commit){
-                Release.debug("#reset:no pre-release commit supplied")
+                Release.debug("#reset:no pre-release commit supplied");
                 resolve();
             }else{
                 Release.git(['reset','--hard',commit],projectRoot).then(function(){
@@ -233,12 +234,12 @@ var Release = {
             Release.debugEnabled = true;
         }
         /* remember some state */
-        var preReleaseCommit = undefined,
-            devBranch = undefined,
-            devVersion = undefined,
-            releaseVersion = undefined,
-            releaseTagName = undefined,
-            nextDevVersion = undefined,
+        var preReleaseCommit = null,
+            devBranch = null,
+            devVersion = null,
+            releaseVersion = null,
+            releaseTagName = null,
+            nextDevVersion = null,
             releaseStartTime = new Date().getTime();
 
         /* original */
@@ -304,7 +305,7 @@ var Release = {
                     releaseVersion: releaseVersion,
                     devVersion: nextDevVersion,
                     releaseTime: new Date().getTime() - releaseStartTime
-                }
+                };
             })
             /* catch any release errors and clean up */
             .catch(function(error){
@@ -318,4 +319,51 @@ var Release = {
             });
     }
 };
+/* check whether or not this is being executed from the CLI */
+if(!module.parent){
+    /* release is being run directly; parse args */
+    var cliArgs = minimist(process.argv.slice(2));
+    if(cliArgs.help){
+        console.log('usage:');
+        console.log('node ' + process.argv[1] + ' [-p path to project (. by default)] [--releaseVersion release version] [--devVersion next dev version] [--debug debug flag] [--build buildCmd]');
+        return;
+    }
+    Release.performRelease({
+        projectPath: cliArgs.p || '.',
+        releaseVersion: cliArgs.releaseVersion || undefined,
+        devVersion: cliArgs.devVersion || undefined,
+        debug: cliArgs.debug || false,
+        buildPromise: function(){
+            if(cliArgs.build){
+                return new q.Promise(function(resolve,reject){
+                    var proc = spawn(cliArgs.build,[],{stdio:'pipe'});
+                    proc.stdout.on('data',function(dataBuffer){
+                        console.log(dataBuffer.toString());
+                    });
+                    gitProc.stderr.on('data',function(dataBuffer){
+                        console.log(dataBuffer.toString());
+                    });
+                    gitProc.on('exit',function(){
+                        if(proc.exitCode !==0){
+                            reject(new Error('Build failed with exit code '+exitCode));
+                        }else{
+                            resolve();
+                        }
+                    });
+                });
+            }else{
+                return true;
+            }
+        }
+    }).then(function(results){
+        console.log("Release Performed in "+results.releaseTime+"ms");
+        console.log("-----------------------------------------------");
+        console.log("released version: "+results.releaseVersion);
+        console.log("dev version: "+results.devVersion);
+    }).catch(function(error){
+        console.log("Release failed");
+        console.log("--------------");
+        console.log(error);
+    });
+}
 module.exports = Release;

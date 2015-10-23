@@ -169,7 +169,7 @@ describe('Release tests', function(){
         tmpDir = tmp.dirSync();
         Release.git = function(commands,workingDirectory){
             return new q.Promise(function(resolve,reject){
-                var resolution = {exitCode:0,stdout:'',stderr:''}
+                var resolution = {exitCode:0,stdout:'',stderr:''};
                 /* always respond with aaaaaaa for current commit */
                 if(commands[0] === 'rev-parse' && commands[1] === '--verify'){
                     resolution.stdout = 'aaaaaaa';
@@ -181,7 +181,7 @@ describe('Release tests', function(){
                 gitlog.push('git '+commands.join(' '));
                 resolve(resolution);
             });
-        }
+        };
     });
     afterEach(function(){
         if(tmpDir){
@@ -192,5 +192,5 @@ describe('Release tests', function(){
             }
             tmpDir.removeCallback();
         }
-    })
+    });
 });

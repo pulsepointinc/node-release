@@ -12,6 +12,9 @@ A release will:
 * Push tag and new development version to git working branch
 
 ## Usage ##
+A Release can be executed as part of a build script (prefered) via an API or via command line.
+
+### Releasing via a build script ###
 
 * Add ```node-release``` to project package.json's dependency section:
 ```
@@ -32,6 +35,16 @@ release.perform({
         });
     }
 })
+```
+
+### Releasing via command line ###
+* Install node-release:
+```
+npm install git+ssh://git@github.com:pulsepointinc/node-release.git#1.0.0
+```
+* Run node release:
+```
+node node_modules/node-release/Release.js -p . [--releaseVersion release version] [--devVersion next dev version] [--debug debug flag] [--build buildCmd]
 ```
 
 ## API ##

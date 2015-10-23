@@ -14,7 +14,8 @@
   "dependencies": {
     "semver": "4.3.4",
     "fs-extra": "0.24.0",
-    "q": "1.4.1"
+    "q": "1.4.1",
+    "minimist": "1.2.0"
   },
   "devDependencies": {
     "mocha": "2.3.3",
@@ -24,7 +25,8 @@
   },
   "scripts": {
     "jshint": "jshint *.js",
-    "test": "mocha test.js"
+    "test": "mocha test.js",
+    "release": "node Release.js"
   },
   "repository": {
     "type": "git",
