@@ -298,7 +298,11 @@ var Release = {
             .then(function(){
                 return Release.commit(config.projectPath,'[release] - updating dev version to '+nextDevVersion);
             })
-            /* push changes upstream */
+            /* push tag upstream */
+            .then(function(){
+                return Release.push(config.projectPath,'origin',releaseVersion);
+            })
+            /* push dev version */
             .then(function(){
                 return Release.push(config.projectPath,'origin',devBranch);
             })
