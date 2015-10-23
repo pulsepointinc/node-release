@@ -116,10 +116,28 @@ describe('Release tests', function(){
         assert.fail();
     });
 
-    it('rolls back on failing build', function(done){
+    it('errors out on bad version', function(done){
         /* make a fake package.json file */
         fs.writeJsonSync(tmpDir.name+'/package.json',{
             version: '1.0-SNAPSHOT'
+        },{spaces: 2});
+        Release.perform({
+            projectPath: tmpDir.name,
+            buildPromise: function(){
+                return true;
+            }
+        }).then(function(results){
+            done(new Error("release should have failed"));
+        }).catch(function(error){
+            assert.isNotNull(error);
+            done();
+        });
+    });
+
+    it('rolls back on failing build', function(done){
+        /* make a fake package.json file */
+        fs.writeJsonSync(tmpDir.name+'/package.json',{
+            version: '1.0.0-SNAPSHOT'
         },{spaces: 2});
         /* run a release! */
         Release.perform({

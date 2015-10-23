@@ -138,6 +138,9 @@ var Release = {
             if(version.indexOf('SNAPSHOT') === -1){
                 reject(new Error('Can not release a non-SNAPSHOT version; update package.json version prior to release'));
             }
+            if(version.split('.').length!==3){
+                reject(new Error('Project version must be semver compliant and have a patch version (e.g. 1.0.0-SNAPSHOT)'));
+            }
             resolve(version);
         });
     },
