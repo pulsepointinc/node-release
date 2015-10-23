@@ -26,7 +26,7 @@
   "scripts": {
     "jshint": "jshint *.js",
     "test": "mocha test.js",
-    "release": "node Release.js -p . --debug --buildCmd 'npm run test'"
+    "release": "node Release.js -p . --debug --build 'npm run test'"
   },
   "repository": {
     "type": "git",
