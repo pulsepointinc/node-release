@@ -18,7 +18,7 @@ A Release can be executed as part of a build script (prefered) via an API or via
 
 * Add ```node-release``` to project package.json's dependency section:
 ```
-"node-cbt": "git+ssh://git@github.com:pulsepointinc/node-release.git#1.0.0",
+"node-release": "git+ssh://git@github.com:pulsepointinc/node-release.git#1.0.0",
 ```
 * Include node-release in project build scripting
 ```
