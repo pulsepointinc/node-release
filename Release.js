@@ -328,6 +328,7 @@ if(!module.parent){
         console.log('node ' + process.argv[1] + ' [-p path to project (. by default)] [--releaseVersion release version] [--devVersion next dev version] [--debug debug flag] [--build buildCmd]');
         return;
     }
+
     Release.performRelease({
         projectPath: cliArgs.p || '.',
         releaseVersion: cliArgs.releaseVersion || undefined,
@@ -336,14 +337,24 @@ if(!module.parent){
         buildPromise: function(){
             if(cliArgs.build){
                 return new q.Promise(function(resolve,reject){
-                    var proc = spawn(cliArgs.build,[],{stdio:'pipe'});
+                    var args = cliArgs.build.split(" ");
+                    if(args.length<1){
+                        reject(new Error("invalid build argument"));
+                    }
+                    var cmd = args[0];
+                    args = args.length>1?args.slice(1):[];
+                    var proc = spawn(cmd,args,{stdio:'pipe'});
                     proc.stdout.on('data',function(dataBuffer){
-                        console.log(dataBuffer.toString());
+                        if(dataBuffer.toString()!==''){
+                            console.log(dataBuffer.toString().trim());
+                        }
                     });
-                    gitProc.stderr.on('data',function(dataBuffer){
-                        console.log(dataBuffer.toString());
+                    proc.stderr.on('data',function(dataBuffer){
+                        if(dataBuffer.toString()!==''){
+                            console.log(dataBuffer.toString().trim());
+                        }
                     });
-                    gitProc.on('exit',function(){
+                    proc.on('exit',function(){
                         if(proc.exitCode !==0){
                             reject(new Error('Build failed with exit code '+exitCode));
                         }else{
