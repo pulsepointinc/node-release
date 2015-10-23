@@ -9,9 +9,7 @@ var q = require('q'),
  * - use semver versioning (e.g. 1.0.0) with SNAPSHOT dev versions (e.g. 1.0.0-SNAPSHOT)
  */
 var Release = {
-    /* TODO: move me into my own git module */
     /* TODO: add maven deploy support */
-
     /**
      * Run a git command by spawning a process; return an object containing stdout,stderr, and exitCode
      * Promise will reject on a non-zero git exit code
@@ -208,11 +206,12 @@ var Release = {
     },
     /**
      * Perform a release given a release configuration consisting of at least a <code>projectPath</code> and <code>buildPromise</code>
-     * @param {object} config                   - required release configuration
-     * @param {string} config.projectPath       - required node project file system path
-     * @param {string} config.buildPromise      - required function that returns a build promise
-     * @param {string} config.releaseVersion    - optional release version (automatically selected otherwise)
-     * @param {string} config.nextDevVersion    - optional next dev version (automatically selected otherwise)
+     * @param {object} config                       - required release configuration
+     * @param {string} config.projectPath           - required node project file system path
+     * @param {string} config.buildPromise          - required function that returns a build promise or status
+     * @param {object} config.postReleasePromise    - optional function that returns a post-release promise or status
+     * @param {string} config.releaseVersion        - optional release version (automatically selected otherwise)
+     * @param {string} config.nextDevVersion        - optional next dev version (automatically selected otherwise)
      * @return {object} promise that resolves with release information or rejects with an error
      */
     perform: function(config){
@@ -272,8 +271,8 @@ var Release = {
             /* remember definitive release tag name and perform post-release tasks */
             .then(function(tagName){
                 releaseTagName = tagName;
-                if(config.postReleaseFn){
-                    return config.postReleaseFn();
+                if(config.postReleasePromise){
+                    return config.postReleasePromise();
                 }else{
                     return;
                 }

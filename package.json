@@ -10,6 +10,7 @@
     "name": "Eugene Rachitskiy",
     "email": "erachitskiy@pulsepoint.com"
   },
+  "main": "Release.js",
   "dependencies": {
     "semver": "4.3.4",
     "fs-extra": "0.24.0",
@@ -18,7 +19,8 @@
   "devDependencies": {
     "mocha": "2.3.3",
     "chai": "2.1.0",
-    "jshint": "2.8.0"
+    "jshint": "2.8.0",
+    "tmp": "0.0.28"
   },
   "scripts": {
     "jshint": "jshint *.js",
