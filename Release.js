@@ -275,7 +275,7 @@ var Release = {
             })
             /* tag release */
             .then(function(){
-                return Release.tag(config.projectPath,'v '+releaseVersion+' release', '[release] - releasing ' + releaseVersion);
+                return Release.tag(config.projectPath,'[release] - '+releaseVersion+' release', releaseVersion);
             })
             /* remember definitive release tag name and perform post-release tasks */
             .then(function(tagName){
