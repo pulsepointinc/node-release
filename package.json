@@ -1,0 +1,31 @@
+{
+  "name": "node-release",
+  "description": "Utilities for perfomring node-js project releases",
+  "version": "1.0.0-SNAPSHOT",
+  "license": "GPL-3.0",
+  "keywords": [
+    "release"
+  ],
+  "author": {
+    "name": "Eugene Rachitskiy",
+    "email": "erachitskiy@pulsepoint.com"
+  },
+  "dependencies": {
+    "semver": "4.3.4",
+    "fs-extra": "0.24.0",
+    "q": "1.4.1"
+  },
+  "devDependencies": {
+    "mocha": "2.3.3",
+    "chai": "2.1.0",
+    "jshint": "2.8.0"
+  },
+  "scripts": {
+    "jshint": "jshint *.js",
+    "test": "mocha test.js"
+  },
+  "repository":{
+    "type": "git",
+    "url": "https://github.com/pulsepointinc/node-release.git"
+  }
+}
