@@ -47,11 +47,13 @@ var Release = {
      * Log a debug message
      */
     debug: function(){
-        var args = Array.prototype.slice.call(arguments);
-        if(args.length > 0){
-            args[0] = '[release] ' + args[0];
+        if(Release.debugEnabled){
+            var args = Array.prototype.slice.call(arguments);
+            if(args.length > 0){
+                args[0] = '[release] ' + args[0];
+            }
+            console.log.apply(console,args);
         }
-        console.log.apply(console,args);
     },
     /**
      * Read current git commit and return a promise that resolves to this commit
@@ -206,12 +208,13 @@ var Release = {
     },
     /**
      * Perform a release given a release configuration consisting of at least a <code>projectPath</code> and <code>buildPromise</code>
-     * @param {object} config                       - required release configuration
-     * @param {string} config.projectPath           - required node project file system path
-     * @param {string} config.buildPromise          - required function that returns a build promise or status
-     * @param {object} config.postReleasePromise    - optional function that returns a post-release promise or status
-     * @param {string} config.releaseVersion        - optional release version (automatically selected otherwise)
-     * @param {string} config.nextDevVersion        - optional next dev version (automatically selected otherwise)
+     * @param {object}  config                       - required release configuration
+     * @param {string}  config.projectPath           - required node project file system path
+     * @param {string}  config.buildPromise          - required function that returns a build promise or status
+     * @param {object}  config.postReleasePromise    - optional function that returns a post-release promise or status
+     * @param {string}  config.releaseVersion        - optional release version (automatically selected otherwise)
+     * @param {string}  config.nextDevVersion        - optional next dev version (automatically selected otherwise)
+     * @param {boolean} config.debug                 - optional flag that specifies whether or not to log debug messages
      * @return {object} promise that resolves with release information or rejects with an error
      */
     perform: function(config){
@@ -226,16 +229,21 @@ var Release = {
         if(!config.buildPromise || typeof(config.buildPromise) !== 'function'){
             throw new Error("Release requires a buildPromise function");
         }
+        if(config.debug){
+            Release.debugEnabled = true;
+        }
         /* remember some state */
         var preReleaseCommit = undefined,
             devBranch = undefined,
             devVersion = undefined,
             releaseVersion = undefined,
             releaseTagName = undefined,
-            nextDevVersion = undefined;
-        return 
-            /* check current version contains a -SNAPSHOT */
-            Release.checkVersion(config.projectPath)
+            nextDevVersion = undefined,
+            releaseStartTime = new Date().getTime();
+
+        /* original */
+        /* check current version contains a -SNAPSHOT */
+        return Release.checkVersion(config.projectPath)
             /* remember current version and check for uncommitted changes */
             .then(function(version){
                 devVersion = version;
@@ -290,11 +298,22 @@ var Release = {
             .then(function(){
                 return Release.push(config.projectPath,'origin',devBranch);
             })
+            /* publish release information */
+            .then(function(){
+                return {
+                    releaseVersion: releaseVersion,
+                    devVersion: nextDevVersion,
+                    releaseTime: new Date().getTime() - releaseStartTime
+                }
+            })
             /* catch any release errors and clean up */
             .catch(function(error){
                 return Release.reset(config.projectPath,preReleaseCommit)
                     .then(function(){
                         return Release.deleteTag(config.projectPath,releaseTagName);
+                    })
+                    .then(function(){
+                        throw new Error(error);
                     });
             });
     }
