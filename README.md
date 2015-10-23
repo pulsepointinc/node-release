@@ -7,7 +7,7 @@ A release will:
 * Update project version to a release version (e.g. ```1.0.0-SNAPSHOT``` -> ```1.0.0```)
 * Run a build
 * Commit and tag project release version
-* Perform any post-release tasks such as maven deployments etc.,
+* Perform any post-release tasks such as artifact/maven deployments etc.,
 * Bump project version to next development interation (e.g. ```1.0.0-SNAPSHOT``` -> ```1.0.1-SNAPSHOT```)
 * Push tag and new development version to git working branch
 
@@ -18,7 +18,7 @@ A Release can be executed as part of a build script (prefered) via an API or via
 
 * Add ```node-release``` to project package.json's dependency section:
 ```
-"node-release": "git+ssh://git@github.com:pulsepointinc/node-release.git#1.0.0",
+"node-release": "git+ssh://git@github.com:pulsepointinc/node-release.git#1.0.1",
 ```
 * Include node-release in project build scripting
 ```
@@ -28,8 +28,9 @@ var release = require('node-release');
 ```
 release.perform({
     projectPath: '.',
-    buildPromise: function(){
+    buildPromise: function(config){
         return new Promise(function(resolve,reject){
+            var releaseVersion = config.releaseVersion;
             ... run build tasks ...
             resolve();
         });
@@ -40,7 +41,7 @@ release.perform({
 ### Releasing via command line ###
 * Install node-release:
 ```
-npm install git+ssh://git@github.com:pulsepointinc/node-release.git#1.0.0
+npm install git+ssh://git@github.com:pulsepointinc/node-release.git#1.0.1
 ```
 * Run node release:
 ```
@@ -52,9 +53,9 @@ The release.perform function accepts an ```config``` argument that should consis
 * **projectPath**
     * required project path on file system
 * **buildPromise**
-    * required function that either performs a sync build or a returns a promise to perform a build
+    * required function that is supplied an object with a ```releaseVersion``` property and either performs a sync build or a returns a promise to perform a build
 * **postReleasePromise**
-    * optional function that performs post-release tasks, such as pushing artifacts to binary/maven repositories
+    * optional function that is supplied an object with a ```releaseVersion``` property and performs post-release tasks, such as pushing artifacts to binary/maven repositories
 * **releaseVersion**
     * optional release version string (automatically selected otherwise)
 * **nextDevVersion** 

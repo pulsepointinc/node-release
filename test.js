@@ -11,14 +11,18 @@ describe('Release tests', function(){
         },{spaces: 2});
         /* make some state variables */
         var buildExecuted = false;
+        var suppliedBuildInfo = null;
         var postReleaseExecuted = false;
+        var suppliedPostReleaseInfo = null;
         /* run a release! */
         Release.perform({
             projectPath: tmpDir.name,
-            buildPromise: function(){
+            buildPromise: function(releaseInfo){
+                suppliedBuildInfo = releaseInfo;
                 buildExecuted = true;
             },
-            postReleasePromise: function(){
+            postReleasePromise: function(releaseInfo){
+                suppliedPostReleaseInfo = releaseInfo;
                 postReleaseExecuted = true;
             }
         }).then(function(results){
@@ -37,8 +41,10 @@ describe('Release tests', function(){
             assert.equal(fs.readJsonSync(tmpDir.name+'/package.json').version,'1.2.4-SNAPSHOT');
             /* assert build was executed */
             assert.isTrue(buildExecuted);
+            assert.equal('1.2.3',suppliedBuildInfo.releaseVersion);
             /* assert post release promise was executed */
             assert.isTrue(postReleaseExecuted);
+            assert.equal('1.2.3',suppliedBuildInfo.releaseVersion);
             done();
         }).catch(function(error){
             done(error);

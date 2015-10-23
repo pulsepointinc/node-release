@@ -214,12 +214,12 @@ var Release = {
      * Perform a release given a release configuration consisting of at least a <code>projectPath</code> and <code>buildPromise</code>
      * @param {object}  config                       - required release configuration
      * @param {string}  config.projectPath           - required node project file system path
-     * @param {string}  config.buildPromise          - required function that returns a build promise or status
-     * @param {object}  config.postReleasePromise    - optional function that returns a post-release promise or status
+     * @param {string}  config.buildPromise          - required function that is supplied an object with "releaseVersion" and returns a build promise or status
+     * @param {object}  config.postReleasePromise    - optional function that is supplied an object with "releaseVersion" and returns a post-release promise or status
      * @param {string}  config.releaseVersion        - optional release version (automatically selected otherwise)
      * @param {string}  config.nextDevVersion        - optional next dev version (automatically selected otherwise)
      * @param {boolean} config.debug                 - optional flag that specifies whether or not to log debug messages
-     * @return {object} promise that resolves with release information or rejects with an error
+     * @return {object} promise that resolves with release information (releaseVersion,devVersion,releaseTime) or rejects with an error
      */
     perform: function(config){
         /* validate config */
@@ -270,7 +270,9 @@ var Release = {
             })
             /* perform a build */
             .then(function(){
-                return config.buildPromise();
+                return config.buildPromise({
+                    releaseVersion: releaseVersion
+                });
             })
             /* commit release version */
             .then(function(){
@@ -284,7 +286,9 @@ var Release = {
             .then(function(tagName){
                 releaseTagName = tagName;
                 if(config.postReleasePromise){
-                    return config.postReleasePromise();
+                    return config.postReleasePromise({
+                        releaseVersion: releaseVersion
+                    });
                 }else{
                     return;
                 }
