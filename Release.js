@@ -87,7 +87,7 @@ var Release = {
                 if(currentBranch !== ''){
                     resolve(currentBranch);
                 }else{
-                    reject(new Error('Could not read current branch.'))
+                    reject(new Error('Could not read current branch.'));
                 }
             });
         });
