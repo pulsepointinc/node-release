@@ -11,7 +11,6 @@ var q = require('q'),
  * - use semver versioning (e.g. 1.0.0) with SNAPSHOT dev versions (e.g. 1.0.0-SNAPSHOT)
  */
 var Release = {
-    /* TODO: add maven deploy support */
     /**
      * Run a git command by spawning a process; return an object containing stdout,stderr, and exitCode
      * Promise will reject on a non-zero git exit code
