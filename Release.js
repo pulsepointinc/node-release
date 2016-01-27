@@ -65,7 +65,12 @@ var Release = {
         Release.debug("#readCurrentCommit:enter ("+projectRoot+")");
         return Release.git(['rev-parse', '--verify', 'HEAD'],projectRoot).then(function(result){
             return new q.Promise(function(resolve,reject){
-                resolve(result.stdout.trim());
+                var currentCommit = result.stdout.trim();
+                if(currentCommit !== ''){
+                    resolve(currentCommit);
+                }else{
+                    reject(new Error('Could not read current commit.'));
+                }
             });
         }.bind(this));
     },
@@ -78,7 +83,12 @@ var Release = {
         Release.debug("#readCurrentBranch:enter ("+projectRoot+")");
         return Release.git(['rev-parse','--abbrev-ref','HEAD'],projectRoot).then(function(result){
             return new q.Promise(function(resolve,reject){
-                resolve(result.stdout.trim());
+                var currentBranch = result.stdout.trim();
+                if(currentBranch !== ''){
+                    resolve(currentBranch);
+                }else{
+                    reject(new Error('Could not read current branch.'))
+                }
             });
         });
     },
