@@ -356,7 +356,7 @@ if(!module.parent){
     }
 
     Release.perform({
-        projectPath: cliArgs.p || '.',
+        projectPath: cliArgs.p || process.cwd(),
         releaseVersion: cliArgs.releaseVersion || undefined,
         devVersion: cliArgs.devVersion || undefined,
         debug: cliArgs.debug || false,
