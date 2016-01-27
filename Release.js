@@ -1,5 +1,5 @@
 var q = require('q'),
-    spawn = require('child_process').spawn,
+    exec = require('child_process').exec,
     semver = require('semver'),
     fs = require('fs-extra'),
     minimist = require('minimist');
@@ -20,22 +20,11 @@ var Release = {
      */
     git: function(commands, workingDirectory){
         return new q.Promise(function(resolve,reject){
-            var stdout = '', stderr = '',
-                gitProc = spawn('git',commands,{stdio:'pipe',cwd:workingDirectory}),
-                killTimeout = setTimeout(function(){
-                    gitProc.kill();
-                },30000);
-            gitProc.stdout.on('data',function(dataBuffer){
-                stdout += dataBuffer.toString();
-            });
-            gitProc.stderr.on('data',function(dataBuffer){
-                stderr += dataBuffer.toString();
-            });
-            gitProc.on('exit',function(){
-                clearTimeout(killTimeout);
-                if(gitProc.exitCode !== 0){
+            var gitProc = exec('git '+commands.join(' '),{cwd:workingDirectory,timeout:30000}, function(error,stdout,stderr){
+                if(error !== null){
                     reject(new Error('Could not execute git ' + commands.join(' ') + 
                         ' (exit code ' + gitProc.exitCode+'); stdout:\n' + stdout + '\nstderr:\n' + stderr));
+                    return;
                 }
                 resolve({
                     stdout: stdout,
