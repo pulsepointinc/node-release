@@ -1,5 +1,6 @@
 var q = require('q'),
     exec = require('child_process').exec,
+    spawn = require('child_process').spawn,
     semver = require('semver'),
     fs = require('fs-extra'),
     minimist = require('minimist');
@@ -249,42 +250,52 @@ var Release = {
         return Release.checkVersion(config.projectPath)
             /* remember current version and check for uncommitted changes */
             .then(function(version){
+                Release.debug("#perform:read DEV version as " + version);
                 devVersion = version;
                 return Release.checkUncommitted(config.projectPath);
             })
             /* read current commit */
             .then(function(){
+                Release.debug("#perform:verified there are no uncommitted changes");
                 return Release.readCurrentCommit(config.projectPath);
             })
             /* remember current commit and read current branch */
             .then(function(currentCommit){
+                Release.debug("#perform:read pre-release commit as " + currentCommit);
                 preReleaseCommit = currentCommit;
                 return Release.readCurrentBranch(config.projectPath);
             })
             /* remember current branch and bump version to release version */
             .then(function(currentBranch){
+                Release.debug("#perform:read DEV branch as " + currentBranch);
                 devBranch = currentBranch;
                 releaseVersion = config.releaseVersion || semver.inc(devVersion,'patch');
+                Release.debug("#perform:picked release version as " + releaseVersion+"; updating local DEV version to release");
                 return Release.updateVersion(config.projectPath,releaseVersion);
             })
             /* perform a build */
             .then(function(){
+                Release.debug("#perform:executing build");
                 return config.buildPromise({
                     releaseVersion: releaseVersion
                 });
             })
             /* commit release version */
             .then(function(){
+                Release.debug("#perform:executed build; committing release version as "+releaseVersion);
                 return Release.commit(config.projectPath,'[release] - releasing ' + releaseVersion);
             })
             /* tag release */
             .then(function(){
+                Release.debug("#perform:tagging release version");
                 return Release.tag(config.projectPath,'[release] - '+releaseVersion+' release', releaseVersion);
             })
             /* remember definitive release tag name and perform post-release tasks */
             .then(function(tagName){
+                Release.debug("#perform:tagged "+tagName);
                 releaseTagName = tagName;
                 if(config.postReleasePromise){
+                    Release.debug("#perform:executing post release steps");
                     return config.postReleasePromise({
                         releaseVersion: releaseVersion
                     });
@@ -295,22 +306,27 @@ var Release = {
             /* bump to next dev version */
             .then(function(){
                 nextDevVersion = config.nextDevVersion || semver.inc(releaseVersion,'patch') + '-SNAPSHOT';
+                Release.debug("#perform:picked next DEV version as " + nextDevVersion);
                 return Release.updateVersion(config.projectPath,nextDevVersion);
             })
             /* commit dev version */
             .then(function(){
+                Release.debug("#perform:committing next DEV version");
                 return Release.commit(config.projectPath,'[release] - updating dev version to '+nextDevVersion);
             })
             /* push tag upstream */
             .then(function(){
+                Release.debug("#perform:pushing released tag");
                 return Release.push(config.projectPath,'origin',releaseVersion);
             })
             /* push dev version */
             .then(function(){
+                Release.debug("#perform:pushing DEV version (" + devBranch+")");
                 return Release.push(config.projectPath,'origin',devBranch);
             })
             /* publish release information */
             .then(function(){
+                Release.debug("#perform:done");
                 return {
                     releaseVersion: releaseVersion,
                     devVersion: nextDevVersion,
@@ -319,6 +335,7 @@ var Release = {
             })
             /* catch any release errors and clean up */
             .catch(function(error){
+                Release.debug("#perform:error performing release - "+error);
                 return Release.reset(config.projectPath,preReleaseCommit)
                     .then(function(){
                         return Release.deleteTag(config.projectPath,releaseTagName);
