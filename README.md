@@ -18,7 +18,7 @@ A Release can be executed as part of a build script (prefered) via an API or via
 
 * Add ```node-release``` to project package.json's dependency section:
 ```
-"node-release": "git+ssh://git@github.com:pulsepointinc/node-release.git#1.0.1",
+"node-release": "git+ssh://git@github.com:pulsepointinc/node-release.git#1.0.2",
 ```
 * Include node-release in project build scripting
 ```
@@ -41,7 +41,7 @@ release.perform({
 ### Releasing via command line ###
 * Install node-release:
 ```
-npm install git+ssh://git@github.com:pulsepointinc/node-release.git#1.0.1
+npm install git+ssh://git@github.com:pulsepointinc/node-release.git#1.0.2
 ```
 * Run node release:
 ```
