@@ -1,5 +1,5 @@
 var q = require('q'),
-    exec = require('child_process').exec,
+    execFile = require('child_process').execFile,
     spawn = require('child_process').spawn,
     semver = require('semver'),
     fs = require('fs-extra'),
@@ -20,7 +20,7 @@ var Release = {
      */
     git: function(commands, workingDirectory){
         return new q.Promise(function(resolve,reject){
-            var gitProc = exec('git '+commands.join(' '),{cwd:workingDirectory,timeout:30000}, function(error,stdout,stderr){
+            var gitProc = execFile('git',commands,{cwd:workingDirectory,timeout:30000}, function(error,stdout,stderr){
                 if(error !== null){
                     reject(new Error('Could not execute git ' + commands.join(' ') + 
                         ' (exit code ' + gitProc.exitCode+'); stdout:\n' + stdout + '\nstderr:\n' + stderr));
