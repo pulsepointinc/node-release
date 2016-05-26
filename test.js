@@ -36,7 +36,7 @@ describe('Release tests', function(){
                 'git commit package.json -m [release] - releasing 1.2.3',
                 'git tag -a -m [release] - 1.2.3 release test-project-1.2.3',
                 'git commit package.json -m [release] - updating dev version to 1.2.4-SNAPSHOT',
-                'git push origin 1.2.3',
+                'git push origin test-project-1.2.3',
                 'git push origin master']);
             /* assert dev version got updated in package.json */
             assert.equal(fs.readJsonSync(tmpDir.name+'/package.json').version,'1.2.4-SNAPSHOT');

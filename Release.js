@@ -323,7 +323,7 @@ var Release = {
             /* push tag upstream */
             .then(function(){
                 Release.debug("#perform:pushing released tag");
-                return Release.push(config.projectPath,'origin',releaseVersion);
+                return Release.push(config.projectPath,'origin',projectName + '-' + releaseVersion);
             })
             /* push dev version */
             .then(function(){
