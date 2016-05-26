@@ -7,6 +7,7 @@ describe('Release tests', function(){
     it('performs an end-end release', function(done){
         /* make a fake package.json file */
         fs.writeJsonSync(tmpDir.name+'/package.json',{
+            name: 'test-project',
             version: '1.2.3-SNAPSHOT'
         },{spaces: 2});
         /* make some state variables */
@@ -33,7 +34,7 @@ describe('Release tests', function(){
             /* assert git log for commits tags and push */
             assert.deepEqual(gitlog.slice(-5),[
                 'git commit package.json -m [release] - releasing 1.2.3',
-                'git tag -a -m [release] - 1.2.3 release 1.2.3',
+                'git tag -a -m [release] - 1.2.3 release test-project-1.2.3',
                 'git commit package.json -m [release] - updating dev version to 1.2.4-SNAPSHOT',
                 'git push origin 1.2.3',
                 'git push origin master']);
@@ -166,6 +167,7 @@ describe('Release tests', function(){
     it('rolls back on failing postRelease task', function(done){
         /* make a fake package.json file */
         fs.writeJsonSync(tmpDir.name+'/package.json',{
+            name: 'example-project',
             version: '1.0.0-SNAPSHOT'
         },{spaces: 2});
         /* run a release! */
@@ -183,7 +185,7 @@ describe('Release tests', function(){
             /* verify git resert and git delete tag were executed */
             assert.deepEqual(gitlog.slice(-2),[ 
                 'git reset --hard aaaaaaa',
-                'git tag -d 1.0.0']);
+                'git tag -d example-project-1.0.0']);
             done();
         });
     });

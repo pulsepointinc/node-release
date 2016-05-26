@@ -128,19 +128,24 @@ var Release = {
     /**
      * Verifies that a project version has a "-SNAPSHOT" in it; returns a promsie that resolves to current version if it does
      * @param {string} projectRoot - project root
-     * @return {object} promise that resolves to current version if the project version is a snapshot
+     * @return {object} promise that resolves to current name and version if the project version is a snapshot
      */
     checkVersion: function(projectRoot){
         Release.debug("#checkVersion:enter ("+projectRoot+")");
         return q.Promise(function(resolve,reject){
-            var version = require(projectRoot+'/package.json').version;
+            var packageJSON = require(projectRoot+'/package.json'),
+                name = packageJSON.name,
+                version = packageJSON.version;
             if(version.indexOf('SNAPSHOT') === -1){
                 reject(new Error('Can not release a non-SNAPSHOT version; update package.json version prior to release'));
             }
             if(version.split('.').length!==3){
                 reject(new Error('Project version must be semver compliant and have a patch version (e.g. 1.0.0-SNAPSHOT)'));
             }
-            resolve(version);
+            resolve({
+                name: name,
+                version: version
+            });
         });
     },
     /**
@@ -237,6 +242,7 @@ var Release = {
         }
         /* remember some state */
         var preReleaseCommit = null,
+            projectName = null,
             devBranch = null,
             devVersion = null,
             releaseVersion = null,
@@ -248,9 +254,10 @@ var Release = {
         /* check current version contains a -SNAPSHOT */
         return Release.checkVersion(config.projectPath)
             /* remember current version and check for uncommitted changes */
-            .then(function(version){
-                Release.debug("#perform:read DEV version as " + version);
-                devVersion = version;
+            .then(function(packageInfo){
+                Release.debug("#perform:read DEV version as " + packageInfo.version);
+                devVersion = packageInfo.version;
+                projectName = packageInfo.name;
                 return Release.checkUncommitted(config.projectPath);
             })
             /* read current commit */
@@ -287,7 +294,7 @@ var Release = {
             /* tag release */
             .then(function(){
                 Release.debug("#perform:tagging release version");
-                return Release.tag(config.projectPath,'[release] - '+releaseVersion+' release', releaseVersion);
+                return Release.tag(config.projectPath,'[release] - '+releaseVersion+' release', projectName + '-' + releaseVersion);
             })
             /* remember definitive release tag name and perform post-release tasks */
             .then(function(tagName){
