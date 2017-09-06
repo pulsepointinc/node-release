@@ -190,6 +190,53 @@ describe('Release tests', function(){
         });
     });
 
+    it('rolls back on failing postRelease task with rollback function result', function(done){
+        /* make a fake package.json file */
+        fs.writeJsonSync(tmpDir.name+'/package.json',{
+            name: 'example-project',
+            version: '1.0.0-SNAPSHOT'
+        },{spaces: 2});
+        var postReleaseRollbackFnCalled = false;
+        var originalPush = Release.push;
+        /* run a release! */
+        Release.perform({
+            projectPath: tmpDir.name,
+            buildPromise: function(){},
+            postReleasePromise: function(){
+                /* let's make release.push fail! */
+                Release.push = function(){
+                    throw new Error("failure to push");
+                }
+                return new Promise(function(resolve){
+                    resolve({
+                        rollback: function(){
+                            return new Promise(function(rollBackResolve){
+                                postReleaseRollbackFnCalled = true;
+                                rollBackResolve();
+                            })
+                        }
+                    });
+                });
+            }
+        }).then(function(results){
+            done(new Error("release should have failed"));
+        }).catch(function(error){
+            try {
+                /* assert build failed due to failure to push */
+                assert.include(error.message, "failure to push");
+                /* verify git resert and git delete tag were executed */
+                assert.deepEqual(gitlog.slice(-2), [
+                    'git reset --hard aaaaaaa',
+                    'git tag -d example-project-1.0.0']);
+                /* verify that the post release promise rollback function was called */
+                assert.isTrue(postReleaseRollbackFnCalled);
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    });
+
     var gitlog = [],tmpDir;
     beforeEach(function(){
         gitlog = [];

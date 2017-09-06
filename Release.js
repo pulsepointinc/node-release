@@ -22,7 +22,7 @@ var Release = {
         return new q.Promise(function(resolve,reject){
             var gitProc = execFile('git',commands,{cwd:workingDirectory,timeout:30000}, function(error,stdout,stderr){
                 if(error !== null){
-                    reject(new Error('Could not execute git ' + commands.join(' ') + 
+                    reject(new Error('Could not execute git ' + commands.join(' ') +
                         ' (exit code ' + gitProc.exitCode+'); stdout:\n' + stdout + '\nstderr:\n' + stderr));
                     return;
                 }
@@ -248,6 +248,7 @@ var Release = {
             releaseVersion = null,
             releaseTagName = null,
             nextDevVersion = null,
+            postReleaseResult = null,
             releaseStartTime = new Date().getTime();
 
         /* original */
@@ -302,11 +303,19 @@ var Release = {
                 releaseTagName = tagName;
                 if(config.postReleasePromise){
                     Release.debug("#perform:executing post release steps");
-                    return config.postReleasePromise({
+                    var postReleaseCallResult = config.postReleasePromise({
                         releaseVersion: releaseVersion
                     });
-                }else{
-                    return;
+                    if(postReleaseCallResult){
+                        if(postReleaseCallResult.then){
+                            return postReleaseCallResult.then(function(result){
+                                postReleaseResult = result;
+                                return result;
+                            })
+                        }else if(postReleaseCallResult.rollback){
+                            postReleaseResult = Promise.resolve(postReleaseCallResult);
+                        }
+                    }
                 }
             })
             /* bump to next dev version */
@@ -343,6 +352,13 @@ var Release = {
             .catch(function(error){
                 Release.debug("#perform:error performing release - "+error);
                 return Release.reset(config.projectPath,preReleaseCommit)
+                    .then(function(){
+                        /* roll back post release task work if any was done */
+                        if(postReleaseResult !== null && postReleaseResult !== undefined
+                            && typeof(postReleaseResult.rollback) === 'function'){
+                            return postReleaseResult.rollback();
+                        }
+                    })
                     .then(function(){
                         return Release.deleteTag(config.projectPath,releaseTagName);
                     })
