@@ -1,7 +1,7 @@
 {
   "name": "node-release",
   "description": "Utilities for perfomring node-js project releases",
-  "version": "1.0.5",
+  "version": "1.0.6-SNAPSHOT",
   "license": "GPL-3.0",
   "keywords": [
     "release"
