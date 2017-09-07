@@ -18,7 +18,7 @@ A Release can be executed as part of a build script (prefered) via an API or via
 
 * Add ```node-release``` to project package.json's dependency section:
 ```
-"node-release": "git+ssh://git@github.com:pulsepointinc/node-release.git#1.0.2",
+"node-release": "pulsepointinc/node-release#node-release-1.0.5",
 ```
 * Include node-release in project build scripting
 ```
@@ -41,7 +41,7 @@ release.perform({
 ### Releasing via command line ###
 * Install node-release:
 ```
-npm install git+ssh://git@github.com:pulsepointinc/node-release.git#1.0.2
+npm install pulsepointinc/node-release#node-release-1.0.5
 ```
 * Run node release:
 ```
@@ -55,7 +55,7 @@ The release.perform function accepts an ```config``` argument that should consis
 * **buildPromise**
     * required function that is supplied an object with a ```releaseVersion``` property and either performs a sync build or a returns a promise to perform a build
 * **postReleasePromise**
-    * optional function that is supplied an object with a ```releaseVersion``` property and performs post-release tasks, such as pushing artifacts to binary/maven repositories
+    * optional function that is supplied an object with a ```releaseVersion``` property and performs post-release tasks, such as pushing artifacts to binary/maven repositories.  May return a promise.  If promise resolves to an object with a ```rollback``` property, rollback will be called on release failure.
 * **releaseVersion**
     * optional release version string (automatically selected otherwise)
 * **nextDevVersion** 
