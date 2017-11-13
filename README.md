@@ -18,7 +18,7 @@ A Release can be executed as part of a build script (prefered) via an API or via
 
 * Add ```node-release``` to project package.json's dependency section:
 ```
-"node-release": "pulsepointinc/node-release#node-release-1.0.5",
+"node-release": "pulsepointinc/node-release#node-release-1.0.6",
 ```
 * Include node-release in project build scripting
 ```
@@ -41,7 +41,7 @@ release.perform({
 ### Releasing via command line ###
 * Install node-release:
 ```
-npm install pulsepointinc/node-release#node-release-1.0.5
+npm install pulsepointinc/node-release#node-release-1.0.6
 ```
 * Run node release:
 ```
