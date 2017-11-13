@@ -405,7 +405,7 @@ if(!module.parent){
                     });
                     proc.on('exit',function(){
                         if(proc.exitCode !==0){
-                            reject(new Error('Build failed with exit code '+exitCode));
+                            reject(new Error('Build failed with exit code ' + proc.exitCode));
                         }else{
                             resolve();
                         }
