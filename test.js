@@ -206,14 +206,14 @@ describe('Release tests', function(){
                 /* let's make release.push fail! */
                 Release.push = function(){
                     throw new Error("failure to push");
-                }
+                };
                 return new Promise(function(resolve){
                     resolve({
                         rollback: function(){
                             return new Promise(function(rollBackResolve){
                                 postReleaseRollbackFnCalled = true;
                                 rollBackResolve();
-                            })
+                            });
                         }
                     });
                 });

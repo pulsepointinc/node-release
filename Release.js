@@ -311,7 +311,7 @@ var Release = {
                             return postReleaseCallResult.then(function(result){
                                 postReleaseResult = result;
                                 return result;
-                            })
+                            });
                         }else if(postReleaseCallResult.rollback){
                             postReleaseResult = Promise.resolve(postReleaseCallResult);
                         }
@@ -354,8 +354,8 @@ var Release = {
                 return Release.reset(config.projectPath,preReleaseCommit)
                     .then(function(){
                         /* roll back post release task work if any was done */
-                        if(postReleaseResult !== null && postReleaseResult !== undefined
-                            && typeof(postReleaseResult.rollback) === 'function'){
+                        if(postReleaseResult !== null && postReleaseResult !== undefined &&
+                            typeof(postReleaseResult.rollback) === 'function') {
                             return postReleaseResult.rollback();
                         }
                     })
